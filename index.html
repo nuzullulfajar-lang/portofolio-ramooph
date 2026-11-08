@@ -130,7 +130,7 @@ button{font:inherit;color:inherit}
 .more-tx{display:grid;gap:6px;min-width:0;flex:1 1 280px}
 .more-tx h3{font-size:clamp(1.25rem,2.6vw,1.65rem)}
 .more-tx p{color:var(--muted);max-width:46ch}
-.more-btn{flex:none;padding:16px 26px}
+.more-btn{flex:0 1 auto;max-width:100%;min-width:0;padding:16px 26px;white-space:normal;line-height:1.25;text-align:left;text-wrap:balance}
 .more-btn svg{width:20px;height:20px;flex:none}
 .more-btn .arr{width:18px;height:18px;transition:transform .3s cubic-bezier(.34,1.56,.64,1)}
 .more-btn:hover .arr{transform:translate(3px,-3px)}
@@ -208,7 +208,9 @@ dialog[open]{animation:dlg .38s cubic-bezier(.2,.8,.2,1)}
 .hd{cursor:grab;touch-action:none}
 .hd:active{cursor:grabbing}
 .hd .hit{fill:transparent}
-.hd .dot{stroke:var(--head);stroke-width:2.5}
+.hd .dot{stroke:var(--head);stroke-width:2.5;transform-box:fill-box;transform-origin:center;transition:transform .2s cubic-bezier(.34,1.56,.64,1)}
+.hd.on .dot{transform:scale(1.3);stroke:var(--sky)}
+.graph svg{-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
 .hd:focus-visible{outline:none}
 .hd:focus-visible .dot{stroke:var(--sky);stroke-width:4}
 .codebar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--surface);border-radius:18px;padding:10px 10px 10px 18px}
@@ -296,6 +298,9 @@ footer a{text-decoration:none}
 .kfd.drag{cursor:grabbing;transform:rotate(45deg) scale(1.28)}
 .kfd:focus-visible{outline:3px solid var(--sky);outline-offset:3px}
 
+@media (max-width:560px){
+  .more-btn{width:100%;justify-content:center;text-align:center;padding:15px 20px;font-size:.95rem}
+}
 @media (max-width:860px){
   .crv-body{grid-template-columns:minmax(0,1fr)}
   .graph{max-width:360px}
@@ -427,20 +432,20 @@ footer a{text-decoration:none}
           <p class="eyebrow">Kurva</p>
           <div class="crv-body">
             <div class="graph">
-          <svg id="curve" viewBox="0 0 300 350" role="group" aria-label="Editor kurva cubic-bezier">
-            <rect class="box" x="75" y="100" width="150" height="150" rx="6"/>
-            <line class="diag" x1="75" y1="250" x2="225" y2="100"/>
+          <svg id="curve" viewBox="0 0 240 352" role="group" aria-label="Editor kurva cubic-bezier">
+            <rect class="box" x="30" y="106" width="180" height="140" rx="6"/>
+            <line class="diag" x1="30" y1="246" x2="210" y2="106"/>
             <line class="ctl" id="l1"/><line class="ctl" id="l2"/>
             <path class="cv" id="cpath"/>
-            <text class="ax" x="75" y="268" text-anchor="middle">0</text>
-            <text class="ax" x="225" y="268" text-anchor="middle">1 waktu</text>
-            <text class="ax" x="64" y="254" text-anchor="end">0</text>
-            <text class="ax" x="64" y="104" text-anchor="end">1</text>
+            <text class="ax" x="30" y="262" text-anchor="middle">0</text>
+            <text class="ax" x="210" y="262" text-anchor="middle">1 waktu</text>
+            <text class="ax" x="20" y="250" text-anchor="end">0</text>
+            <text class="ax" x="20" y="110" text-anchor="end">1</text>
             <g class="hd" id="h1" tabindex="0" role="slider" aria-label="Titik kontrol pertama. Gunakan tombol panah.">
-              <circle class="hit" r="22"/><circle class="dot" r="10" fill="#F2B8E8"/>
+              <circle class="hit" r="26"/><circle class="dot" r="12" fill="#F2B8E8"/>
             </g>
             <g class="hd" id="h2" tabindex="0" role="slider" aria-label="Titik kontrol kedua. Gunakan tombol panah.">
-              <circle class="hit" r="22"/><circle class="dot" r="10" fill="#D4B5F5"/>
+              <circle class="hit" r="26"/><circle class="dot" r="12" fill="#D4B5F5"/>
             </g>
           </svg>
         </div>
@@ -683,7 +688,7 @@ footer a{text-decoration:none}
   }
 
   /* ---------- easing playground ---------- */
-  var g={x0:75,yB:250,S:150}, P=[.34,1.56,.64,1], drag=-1;
+  var g={x0:30,yB:246,Sx:180,Sy:140}, P=[.34,1.56,.64,1];
   var svg=$('#curve'), hs=[$('#h1'),$('#h2')], track=$('#track'), ball=$('#ball'), tgt=$('#tgt'), anim=null, pend=0;
   var PRESETS=[['Linear',[0,0,1,1]],['Lembut',[.45,0,.2,1]],['Meluncur',[.16,1,.3,1]],['Melenting',[.34,1.56,.64,1]],['Tarik dulu',[.68,-.55,.27,1.55]]];
   var pbox=$('#presets');
@@ -691,7 +696,7 @@ footer a{text-decoration:none}
     var b=document.createElement('button');b.type='button';b.className='chip';b.textContent=p[0];b.dataset.i=i;pbox.appendChild(b);
   });
   pbox.addEventListener('click',function(e){var b=e.target.closest('.chip');if(!b)return;P=PRESETS[b.dataset.i][1].slice();render()});
-  var px=function(v){return g.x0+v*g.S}, py=function(v){return g.yB-v*g.S};
+  var px=function(v){return g.x0+v*g.Sx}, py=function(v){return g.yB-v*g.Sy};
   function render(){
     hs[0].setAttribute('transform','translate('+px(P[0])+' '+py(P[1])+')');
     hs[1].setAttribute('transform','translate('+px(P[2])+' '+py(P[3])+')');
@@ -708,17 +713,38 @@ footer a{text-decoration:none}
   function toVal(e){
     var pt=svg.createSVGPoint();pt.x=e.clientX;pt.y=e.clientY;
     var q=pt.matrixTransform(svg.getScreenCTM().inverse());
-    return [(q.x-g.x0)/g.S,(g.yB-q.y)/g.S];
+    return [(q.x-g.x0)/g.Sx,(g.yB-q.y)/g.Sy];
   }
   var r2=function(v){return Math.round(v*100)/100};
-  hs.forEach(function(h,i){
-    h.addEventListener('pointerdown',function(e){h.setPointerCapture(e.pointerId);drag=i;h.focus();e.preventDefault()});
-    h.addEventListener('pointermove',function(e){
-      if(drag!==i)return; var v=toVal(e);
-      P[i*2]=r2(clamp(v[0],0,1));P[i*2+1]=r2(clamp(v[1],-.6,1.6));render();
+  /* geser titik: sentuhan dekat titik (44px) langsung menangkapnya, di tempat lain halaman tetap bisa di-scroll */
+  var GRAB=44, dragI=-1, off=[0,0];
+  function nearest(pt){
+    var best=-1,bd=1e9;
+    hs.forEach(function(h,i){
+      var r=h.getBoundingClientRect(),d=Math.hypot(pt.clientX-(r.left+r.width/2),pt.clientY-(r.top+r.height/2));
+      if(d<bd){bd=d;best=i}
     });
-    h.addEventListener('pointerup',function(){drag=-1});
-    h.addEventListener('pointercancel',function(){drag=-1});
+    return bd<=GRAB?best:-1;
+  }
+  function endDrag(){if(dragI>=0)hs[dragI].classList.remove('on');dragI=-1}
+  svg.addEventListener('pointerdown',function(e){
+    var i=nearest(e);if(i<0)return;
+    dragI=i;var v=toVal(e);off=[P[i*2]-v[0],P[i*2+1]-v[1]];
+    try{svg.setPointerCapture(e.pointerId)}catch(_){}
+    hs[i].classList.add('on');
+    e.preventDefault();
+  });
+  svg.addEventListener('pointermove',function(e){
+    if(dragI<0)return;var v=toVal(e),i=dragI;
+    P[i*2]=r2(clamp(v[0]+off[0],0,1));P[i*2+1]=r2(clamp(v[1]+off[1],-.6,1.6));
+    render();e.preventDefault();
+  });
+  svg.addEventListener('pointerup',endDrag);
+  svg.addEventListener('pointercancel',endDrag);
+  svg.addEventListener('lostpointercapture',endDrag);
+  svg.addEventListener('touchstart',function(e){var t=e.touches[0];if(t&&nearest(t)>=0)e.preventDefault()},{passive:false});
+  svg.addEventListener('touchmove',function(e){if(dragI>=0)e.preventDefault()},{passive:false});
+  hs.forEach(function(h,i){
     h.addEventListener('keydown',function(e){
       var d={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,1],ArrowDown:[0,-1]}[e.key];if(!d)return;
       e.preventDefault();P[i*2]=r2(clamp(P[i*2]+d[0]*.02,0,1));P[i*2+1]=r2(clamp(P[i*2+1]+d[1]*.02,-.6,1.6));render();
